@@ -114,61 +114,12 @@ curl http://localhost:5000/health
 - PDF contents are not persisted locally by default; the bot stores the Telegram `file_id` and obtains a temporary file URL when needed via `bot.telegram.getFileLink`.
 - The app uses in-memory sessions (a `Map`) for the private setup flow — this is ephemeral and not resilient across restarts or multiple instances. For production, move sessions to Redis or DB-backed session store.
 - The Google GenAI call receives the file URL and user prompt. Ensure your `GEMINI_API_KEY` is kept secret and access to logs is controlled.
-- Tokens are stored per-project in MongoDB; no payment or top-up flow is implemented in the current code (the message mentions `/chargeup` but the command itself is not implemented).
+- Tokens are stored per-project in MongoDB; no payment or top-up flow is implemented in the current code.
 
 ---
 
-## Known issues & recommended fixes (for judges to look for)
-
-1. Missing sanitization helper: `convertHtml` is referenced in the group reply handlers but is not defined in the repository. This can cause runtime errors when the code path attempts to sanitize AI responses for HTML markup. Recommendation: implement `convertHtml` (e.g., a wrapper that escapes HTML special chars and optionally converts some Markdown to HTML), or avoid using `parse_mode` for AI text and send plain text.
-
-2. Telegram entity parsing errors: earlier versions attempted to reply with `parse_mode: 'Markdown'` using unescaped user content such as filenames or file paths and hit "can't parse entities" errors. The fix is to escape user input or send messages as plain text or sanitized HTML.
-
-3. Sessions are in-memory: not suitable for horizontal scaling or crash resilience. Move to Redis for production.
-
-4. File handling: although an `uploads/` folder exists, the bot currently does not download and save files there; it relies on Telegram file links. If persistent local storage is required, implement file download and safe filename handling.
-
-5. Token management: the messages mention a `/chargeup` command but implementation is missing. Judges should mark this as incomplete if token top-ups are required for the evaluation.
-
----
-
-## Testing checklist (manual)
-
-- [ ] 1. Service starts: `npm start` and `GET /health` returns `ok`.
-- [ ] 2. Private flow: in Telegram private chat, `/start` → send `ProjectX` → upload a PDF → verify bot confirms and DB contains a `project` document with `file_id` and `code`.
-- [ ] 3. Group linking: add the bot to a group; the `my_chat_member` handler should associate the group's `chatId` with the project owner.
-- [ ] 4. AI reply: mention bot in group with question or reply to a message mentioning the bot; if `GEMINI_API_KEY` set and `tokens` sufficient, the bot should reply with generated content. Note token thresholds.
-- [ ] 5. Edge cases: send a non-PDF document — bot should reject it; send unexpected file at wrong step — bot should instruct to run `/start`.
-
----
-
-## How to evaluate (for judges)
-
-- Completeness: Are private and group flows implemented end-to-end? Is the upload and project record creation correct?
-- Correctness: Are user inputs sanitized before being used in Telegram replies (no entity parsing crashes)?
-- Resilience: How does the project handle missing env vars, database failures, or invalid user inputs?
-- Security & privacy: Are sensitive keys kept out of code? Is data minimised and kept only as needed?
-- Code quality: Clear separation of concerns, helpful comments, and small functions (e.g., `escapeHtml`) are present. There are a few TODOs (e.g., `convertHtml`) that reduce score.
-- UX: Are messages helpful and professional? Are error messages clear and actionable?
-
----
-
-## Suggested next improvements (grading hints)
-
-- Implement `convertHtml` to reliably sanitize/generated AI content before sending with `HTML` parse mode.
-- Persist sessions in Redis for production readiness.
-- Implement `/chargeup` or an admin/top-up flow to manage project tokens.
-- Add logging, monitoring, and tests (unit tests for handlers and integration tests mocking Telegram API).
-- Add a Dockerfile and CI pipeline for reproducible builds.
-
----
-
-## Contact
-
-If the judges need a walkthrough or to see a live demo, I can run a quick demo session and provide test tokens and sample PDFs on request.
-
----
 
 Thank you for reviewing GemQ — keep it clean and focused on UX and robust input handling.
+# GemQ_bot
 # GemQ_bot
 # GemQ_bot

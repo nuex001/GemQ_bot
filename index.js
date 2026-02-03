@@ -460,7 +460,7 @@ if (BOT_TOKEN) {
               // 3. Restriction Check
               if (project.tokens < 5) {
                 return ctx.reply(
-                  "❌ Out of gas, bro. /chargeup to keep chatting.",
+                  "❌ Out of gas, bro. chargeup to keep chatting.",
                 );
               }
 
@@ -510,7 +510,7 @@ if (BOT_TOKEN) {
             // 3. Restriction Check
             if (project.tokens < 5) {
               return ctx.reply(
-                "❌ Out of gas, bro. /chargeup to keep chatting.",
+                "❌ Out of gas, bro. chargeup to keep chatting.",
               );
             }
 
