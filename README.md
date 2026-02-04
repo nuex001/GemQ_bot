@@ -30,6 +30,7 @@ Primary goals: rapid prototyping of a document-backed, bot-driven AI assistant; 
 - `models/Schema.js` — Mongoose schema for projects (fields: `userId`, `username`, `file_id`, `code`, `chatId`, `tokens`, `role`).
 - `.env.example` — environment variables template.
 - `package.json` — dependencies & start scripts.
+- `PDF` - https://github.com/nuex001/GemQ_bot/blob/main/FlowSync_Project_Documentation.pdf
 
 ---
 
@@ -120,6 +121,7 @@ curl http://localhost:5000/health
 
 
 Thank you for reviewing GemQ — keep it clean and focused on UX and robust input handling.
+# GemQ_bot
 # GemQ_bot
 # GemQ_bot
 # GemQ_bot
