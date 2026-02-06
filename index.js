@@ -58,9 +58,11 @@ if (BOT_TOKEN) {
   async function generateAiContent({ msg, file_id }) {
     const maxAttempts = 3;
 
+    const promptText = `${msg}\nReturn plain text. No markdown special characters.`;
+    const fileUrl = await getUrlFromId(file_id);
+
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       try {
-        const fileUrl = await getUrlFromId(file_id);
         const response = await ai.models.generateContent({
           model: "gemini-3-flash-preview",
           contents: [
@@ -70,30 +72,27 @@ if (BOT_TOKEN) {
                 fileUri: fileUrl,
               },
             },
-            `
-      ${msg}
-      Avoid special characters that might break Telegram markdown parsing.
-      `,
+            { text: promptText },
           ],
           config: {
-            thinkingLevel: "medium",
+            thinkingLevel: "low",
           },
         });
         return response.text;
       } catch (error) {
-        if (error.status === 503 || error.message.includes("overloaded")) {
-          const waitTime = Math.pow(2, attempt + 1) * 1000; // 2s, 4s, 8s
-          console.log(
-            `⚠️ Model overloaded. Retrying in ${waitTime}ms... (Attempt ${attempt + 1})`,
-          );
+        // 💡 Optimization: Faster retry for 503s
+        const isOverloaded =
+          error.status === 503 || error.message.includes("overloaded");
+
+        if (isOverloaded && attempt < maxAttempts - 1) {
+          const waitTime = (attempt + 1) * 1000;
           await new Promise((res) => setTimeout(res, waitTime));
-        } else {
-          throw error;
+          continue;
         }
+        throw error;
       }
     }
-
-    throw new Error("Gemini is too busy right now, bro.");
+    throw new Error("Gemini is slammed. Try again in a sec.");
   }
 
   // /start command: begin a clean flow to capture project name and a PDF file

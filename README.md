@@ -125,4 +125,3 @@ Thank you for reviewing GemQ — keep it clean and focused on UX and robust inpu
 # GemQ_bot
 # GemQ_bot
 # GemQ_bot
-# GemQ_bot
